@@ -2,7 +2,7 @@
 
 set -euxo pipefail
 
-crate=riscv-rt
+crate=fomu-rt
 
 # remove existing blobs because otherwise this will append object files to the old blobs
 rm -f bin/*.a

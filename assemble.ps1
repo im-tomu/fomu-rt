@@ -1,7 +1,7 @@
 # remove existing blobs because otherwise this will append object files to the old blobs
 Remove-Item -Force bin/*.a
 
-$crate = "xous-riscv-rt"
+$crate = "fomu-rt"
 
 riscv64-unknown-elf-gcc -ggdb3 -c -mabi=ilp32 -march=rv32imac asm.S -o bin/$crate.o
 riscv64-unknown-elf-ar crs bin/riscv32imac-unknown-none-elf.a bin/$crate.o
