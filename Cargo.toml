@@ -1,6 +1,6 @@
 [package]
 name = "fomu-rt"
-version = "0.0.1"
+version = "0.0.2"
 repository = "https://github.com/im-tomu/fomu-rt"
 authors = ["Sean Cross <sean@xobs.io>", "The RISC-V Team <risc-v@teams.rust-embedded.org>"]
 categories = ["embedded", "no-std"]
