@@ -1,11 +1,9 @@
-//! Minimal startup / runtime for RISC-V CPU's
+//! Minimal startup / runtime for RISC-V Fomu CPU
 //!
 //! # Minimum Supported Rust Version (MSRV)
 //!
 //! This crate is guaranteed to compile on stable Rust 1.31 and up. It *might*
 //! compile with older versions but that may change in any new patch release.
-//! Note that `riscv64imac-unknown-none-elf` and `riscv64gc-unknown-none-elf` targets
-//! are not supported on stable yet.
 //!
 //! # Features
 //!
@@ -30,23 +28,8 @@
 //! $ # add this crate as a dependency
 //! $ edit Cargo.toml && cat $_
 //! [dependencies]
-//! fomu-rt = "0.6.1"
+//! fomu-rt = "0.0.1"
 //! panic-halt = "0.2.0"
-//!
-//! $ # memory layout of the device
-//! $ edit memory.x && cat $_
-//! MEMORY
-//! {
-//!   RAM : ORIGIN = 0x80000000, LENGTH = 16K
-//!   FLASH : ORIGIN = 0x20000000, LENGTH = 16M
-//! }
-//!
-//! REGION_ALIAS("REGION_TEXT", FLASH);
-//! REGION_ALIAS("REGION_RODATA", FLASH);
-//! REGION_ALIAS("REGION_DATA", RAM);
-//! REGION_ALIAS("REGION_BSS", RAM);
-//! REGION_ALIAS("REGION_HEAP", RAM);
-//! REGION_ALIAS("REGION_STACK", RAM);
 //!
 //! $ edit src/main.rs && cat $_
 //! ```
@@ -72,36 +55,12 @@
 //! $ mkdir .cargo && edit .cargo/config && cat $_
 //! [target.riscv32i-unknown-none-elf]
 //! rustflags = [
-//!   "-C", "link-arg=-Tmemory.x",
 //!   "-C", "link-arg=-Tlink.x",
 //! ]
 //!
 //! [build]
 //! target = "riscv32i-unknown-none-elf"
-//! $ edit build.rs && cat $_
-//! ```
-//!
-//! ``` ignore,no_run
-//! use std::env;
-//! use std::fs::File;
-//! use std::io::Write;
-//! use std::path::Path;
-//!
-//! /// Put the linker script somewhere the linker can find it.
-//! fn main() {
-//!     let out_dir = env::var("OUT_DIR").expect("No out dir");
-//!     let dest_path = Path::new(&out_dir);
-//!     let mut f = File::create(&dest_path.join("memory.x"))
-//!         .expect("Could not create file");
-//!
-//!     f.write_all(include_bytes!("memory.x"))
-//!         .expect("Could not write file");
-//!
-//!     println!("cargo:rustc-link-search={}", dest_path.display());
-//!
-//!     println!("cargo:rerun-if-changed=memory.x");
-//!     println!("cargo:rerun-if-changed=build.rs");
-//! }
+//! $
 //! ```
 //!
 //! ``` text
@@ -122,97 +81,6 @@
 //! This crate makes heavy use of symbols, linker sections and linker scripts to
 //! provide most of its functionality. Below are described the main symbol
 //! interfaces.
-//!
-//! ## `memory.x`
-//!
-//! This file supplies the information about the device to the linker.
-//!
-//! ### `MEMORY`
-//!
-//! The main information that this file must provide is the memory layout of
-//! the device in the form of the `MEMORY` command. The command is documented
-//! [here][2], but at a minimum you'll want to create at least one memory region.
-//!
-//! [2]: https://sourceware.org/binutils/docs/ld/MEMORY.html
-//!
-//! To support different relocation models (RAM-only, FLASH+RAM) multiple regions are used:
-//!
-//! - `REGION_TEXT` - for `.init`, `.trap` and `.text` sections
-//! - `REGION_RODATA` - for `.rodata` section and storing initial values for `.data` section
-//! - `REGION_DATA` - for `.data` section
-//! - `REGION_BSS` - for `.bss` section
-//! - `REGION_HEAP` - for the heap area
-//! - `REGION_STACK` - for hart stacks
-//!
-//! Specific aliases for these regions must be defined in `memory.x` file (see example below).
-//!
-//! ### `_stext`
-//!
-//! This symbol provides the loading address of `.text` section. This value can be changed
-//! to override the loading address of the firmware (for example, in case of bootloader present).
-//!
-//! If omitted this symbol value will default to `ORIGIN(REGION_TEXT)`.
-//!
-//! ### `_stack_start`
-//!
-//! This symbol provides the address at which the call stack will be allocated.
-//! The call stack grows downwards so this address is usually set to the highest
-//! valid RAM address plus one (this *is* an invalid address but the processor
-//! will decrement the stack pointer *before* using its value as an address).
-//!
-//! In case of multiple harts present, this address defines the initial stack pointer for hart 0.
-//! Stack pointer for hart `N` is calculated as  `_stack_start - N * _hart_stack_size`.
-//!
-//! If omitted this symbol value will default to `ORIGIN(REGION_STACK) + LENGTH(REGION_STACK)`.
-//!
-//! #### Example
-//!
-//! Allocating the call stack on a different RAM region.
-//!
-//! ``` text
-//! MEMORY
-//! {
-//!   L2_LIM : ORIGIN = 0x08000000, LENGTH = 1M
-//!   RAM : ORIGIN = 0x80000000, LENGTH = 16K
-//!   FLASH : ORIGIN = 0x20000000, LENGTH = 16M
-//! }
-//!
-//! REGION_ALIAS("REGION_TEXT", FLASH);
-//! REGION_ALIAS("REGION_RODATA", FLASH);
-//! REGION_ALIAS("REGION_DATA", RAM);
-//! REGION_ALIAS("REGION_BSS", RAM);
-//! REGION_ALIAS("REGION_HEAP", RAM);
-//! REGION_ALIAS("REGION_STACK", L2_LIM);
-//!
-//! _stack_start = ORIGIN(L2_LIM) + LENGTH(L2_LIM);
-//! ```
-//!
-//! ### `_max_hart_id`
-//!
-//! This symbol defines the maximum hart id suppoted. All harts with id
-//! greater than `_max_hart_id` will be redirected to `abort()`.
-//!
-//! This symbol is supposed to be redefined in platform support crates for
-//! multi-core targets.
-//!
-//! If omitted this symbol value will default to 0 (single core).
-//!
-//! ### `_hart_stack_size`
-//!
-//! This symbol defines stack area size for *one* hart.
-//!
-//! If omitted this symbol value will default to 2K.
-//!
-//! ### `_heap_size`
-//!
-//! This symbol provides the size of a heap region. The default value is 0. You can set `_heap_size`
-//! to a non-zero value if you are planning to use heap allocations.
-//!
-//! ### `_sheap`
-//!
-//! This symbol is located in RAM right after the `.bss` and `.data` sections.
-//! You can use the address of this symbol as the start address of a heap
-//! region. This symbol is 4 byte aligned so that address will be a multiple of 4.
 //!
 //! #### Example
 //!
@@ -304,8 +172,6 @@ pub unsafe extern "C" fn start_rust() -> ! {
         r0::zero_bss(&mut _sbss, &mut _ebss);
         r0::init_data(&mut _sdata, &mut _edata, &_sidata);
     }
-
-    // TODO: Enable FPU when available
 
     main();
 }
