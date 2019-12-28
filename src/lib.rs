@@ -30,7 +30,7 @@
 //! $ # add this crate as a dependency
 //! $ edit Cargo.toml && cat $_
 //! [dependencies]
-//! riscv-rt = "0.6.1"
+//! fomu-rt = "0.6.1"
 //! panic-halt = "0.2.0"
 //!
 //! $ # memory layout of the device
@@ -57,7 +57,7 @@
 //!
 //! extern crate panic_halt;
 //!
-//! use riscv_rt::entry;
+//! use fomu_rt::entry;
 //!
 //! // use `main` as the entry point of this application
 //! // `main` is not allowed to return
@@ -70,14 +70,14 @@
 //!
 //! ``` text
 //! $ mkdir .cargo && edit .cargo/config && cat $_
-//! [target.riscv32imac-unknown-none-elf]
+//! [target.riscv32i-unknown-none-elf]
 //! rustflags = [
 //!   "-C", "link-arg=-Tmemory.x",
 //!   "-C", "link-arg=-Tlink.x",
 //! ]
 //!
 //! [build]
-//! target = "riscv32imac-unknown-none-elf"
+//! target = "riscv32i-unknown-none-elf"
 //! $ edit build.rs && cat $_
 //! ```
 //!
@@ -255,15 +255,15 @@
 #![deny(missing_docs)]
 #![deny(warnings)]
 
-extern crate riscv;
+extern crate vexriscv;
 extern crate riscv_rt_macros as macros;
 extern crate r0;
 
 pub use macros::{entry, pre_init};
 
-use riscv::register::mstatus;
+use vexriscv::register::mstatus;
 
-#[export_name = "error: riscv-rt appears more than once in the dependency graph"]
+#[export_name = "error: fomu-rt appears more than once in the dependency graph"]
 #[doc(hidden)]
 pub static __ONCE__: () = ();
 
@@ -345,11 +345,11 @@ pub unsafe extern "Rust" fn default_pre_init() {}
 #[doc(hidden)]
 #[no_mangle]
 pub extern "Rust" fn default_mp_hook() -> bool {
-    use riscv::register::mhartid;
+    use vexriscv::register::mhartid;
     match mhartid::read() {
         0 => true,
         _ => loop {
-            unsafe { riscv::asm::wfi() }
+            unsafe { vexriscv::asm::wfi() }
         },
     }
 }

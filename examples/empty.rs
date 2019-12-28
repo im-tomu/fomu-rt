@@ -2,9 +2,9 @@
 #![no_main]
 
 extern crate panic_halt;
-extern crate riscv_rt;
+extern crate fomu_rt;
 
-use riscv_rt::entry;
+use fomu_rt::entry;
 
 #[entry]
 fn main() -> ! {

@@ -2,12 +2,12 @@
 #![no_main]
 
 extern crate panic_halt;
-extern crate riscv;
-extern crate riscv_rt;
+extern crate vexriscv;
+extern crate fomu_rt;
 
-use riscv::register::{mie, mip, mhartid};
-use riscv::asm::wfi;
-use riscv_rt::entry;
+use vexriscv::register::{mie, mip, mhartid};
+use vexriscv::asm::wfi;
+use fomu_rt::entry;
 
 #[export_name = "_mp_hook"]
 pub extern "Rust" fn user_mp_hook() -> bool {
