@@ -14,7 +14,7 @@ vexriscv = "0.0.1"
 riscv-rt-macros = { path = "macros", version = "0.1.6" }
 
 [features]
-inline-asm = ["riscv/inline-asm"]
+inline-asm = ["vexriscv/inline-asm"]
 
 [dev-dependencies]
 vexriscv = "0.0.1"
