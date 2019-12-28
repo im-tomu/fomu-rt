@@ -1,17 +1,18 @@
-[![crates.io](https://img.shields.io/crates/d/riscv-rt.svg)](https://crates.io/crates/riscv-rt)
-[![crates.io](https://img.shields.io/crates/v/riscv-rt.svg)](https://crates.io/crates/riscv-rt)
-[![Build Status](https://travis-ci.org/rust-embedded/riscv-rt.svg?branch=master)](https://travis-ci.org/rust-embedded/riscv-rt)
+[![crates.io](https://img.shields.io/crates/d/fomu-rt.svg)](https://crates.io/crates/fomu-rt)
+[![crates.io](https://img.shields.io/crates/v/fomu-rt.svg)](https://crates.io/crates/fomu-rt)
+[![Build Status](https://travis-ci.org/im-tomu/fomu-rt.svg?branch=master)](https://travis-ci.org/im-tomu/fomu-rt)
 
-# `riscv-rt`
+# `fomu-rt`
 
-> Minimal runtime / startup for RISC-V CPU's.
+> Minimal runtime / startup for RISC-V on Fomu.
 
-This project is developed and maintained by the [RISC-V team][team].
+This project is derived from [riscv-rt](https://github.com/rust-embedded/riscv-rt), developed and maintained by the [RISC-V team][team].
 
-## [Documentation](https://docs.rs/crate/riscv-rt)
+## [Documentation](https://docs.rs/crate/fomu-rt)
 
 ## License
 
+Copyright 2020 Sean "xobs" Cross
 Copyright 2018 [RISC-V team][team]
 
 Permission to use, copy, modify, and/or distribute this software for any purpose
