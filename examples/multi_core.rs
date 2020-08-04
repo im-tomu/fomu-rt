@@ -2,11 +2,11 @@
 #![no_main]
 
 extern crate panic_halt;
-extern crate vexriscv;
+extern crate riscv;
 extern crate fomu_rt;
 
-use vexriscv::register::{mie, mip, mhartid};
-use vexriscv::asm::wfi;
+use riscv::register::{mie, mip, mhartid};
+use riscv::asm::wfi;
 use fomu_rt::entry;
 
 #[export_name = "_mp_hook"]
