@@ -124,12 +124,13 @@
 #![deny(warnings)]
 
 extern crate vexriscv;
+extern crate riscv;
 extern crate riscv_rt_macros as macros;
 extern crate r0;
 
 pub use macros::{entry, pre_init};
 
-use vexriscv::register::mstatus;
+use riscv::register::mstatus;
 
 #[export_name = "error: fomu-rt appears more than once in the dependency graph"]
 #[doc(hidden)]
@@ -211,11 +212,11 @@ pub unsafe extern "Rust" fn default_pre_init() {}
 #[doc(hidden)]
 #[no_mangle]
 pub extern "Rust" fn default_mp_hook() -> bool {
-    use vexriscv::register::mhartid;
+    use riscv::register::mhartid;
     match mhartid::read() {
         0 => true,
         _ => loop {
-            unsafe { vexriscv::asm::wfi() }
+            unsafe { riscv::asm::wfi() }
         },
     }
 }
