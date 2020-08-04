@@ -10,7 +10,7 @@ license = "ISC"
 
 [dependencies]
 r0 = "0.2.2"
-vexriscv = "0.0.4"
+vexriscv = "0.0.3"
 riscv = "0.6"
 riscv-rt-macros = { path = "macros", version = "0.1.6" }
 
@@ -19,5 +19,5 @@ inline-asm = ["riscv/inline-asm"]
 
 [dev-dependencies]
 riscv = "0.6"
-vexriscv = "0.0.4"
+vexriscv = "0.0.3"
 panic-halt = "0.2.0"
